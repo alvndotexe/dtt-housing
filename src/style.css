@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .header-1 {
+    @apply text-[18px] sm:text-[32px] font-bold font-monster;
+  }
+  .header-2 {
+    @apply text-[14px] sm:text-[22px] font-bold font-monster;
+  }
+  .desktop-header {
+    @apply text-[18px] font-monster font-bold;
+  }
+  .inactice-desktop-header {
+    @apply text-[18px] font-monster font-medium;
+  }
+  .buttons-and-tabs {
+    @apply text-[12px] sm:text-[18px] font-monster font-bold;
+  }
+  .back-button-label-desktop {
+    @apply text-[16px] font-monster font-semibold;
+  }
+  .input-field-title {
+    @apply text-[12px] sm:text-[14px] font-monster font-semibold;
+  }
+  .empty-state-message {
+    @apply text-[18px] sm:text[14px] font-monster font-medium;
+  }
+  .error-message {
+    @apply font-monster font-medium italic
+  }
+  .list {
+    @apply text-[12px] sm:text-[16px]  font-open font-semibold
+  }
+  .body {
+    @apply font-open text-[12px] sm:text-[18px]
+  }
+  .input {
+    @apply font-open text-[12px] sm:text-[22px]
+  }
+
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html body {
+  line-height: 1.5;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+#root {
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
