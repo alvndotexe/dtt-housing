@@ -92,16 +92,17 @@ onBeforeUnmount(() => (main.value.style.backgroundImage = ""));
 
 <template>
   <div
-    class="[background-image:linear-gradient(to_botton,blue,red)] px-3 sm:px-0"
+    class="sm:m-0 [background-image:linear-gradient(to_botton,blue,red)] px-3 sm:px-0"
   >
     <form
       ref="form"
       @submit.prevent="handleSubmit"
-      class="flex flex-col w-[min(100vw,400px)]"
+      class="flex flex-col w-full sm:w-[min(100vw,400px)]"
     >
       <Input
         :errors="errors"
         :value="getInputValue(house.location?.street.replaceAll(/[0-9]*/g, ''))"
+        placeholder="Enter the street name"
         :required="true"
         :type="'text'"
         :name="'streetName'"

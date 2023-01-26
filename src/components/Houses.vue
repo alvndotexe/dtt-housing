@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { House, key } from "@/store";
 import emtpy from "@/assets/img_empty_houses@3x.png";
-import { computed, reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { House, key } from "@/store";
+import { computed, ref, watchEffect } from "vue";
 import { useStore } from "vuex";
 import HouseArticle from "./HouseArticle.vue";
 
@@ -11,7 +10,6 @@ const props = defineProps<{
   sortMethod: (a: House, b: House) => number;
 }>();
 
-const router = useRouter();
 const store = useStore(key);
 
 let data = ref<Array<House>>([]);
@@ -37,11 +35,6 @@ const houses = computed(() =>
             .includes(props.input.value.toLowerCase())
         )
 );
-
-const numberformater = new Intl.NumberFormat("en-IN", {
-  style: "currency",
-  currency: "EUR",
-});
 </script>
 
 <template>
