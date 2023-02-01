@@ -18,7 +18,7 @@ const router = useRouter();
 const show = reactive({ value: false });
 const { location, id, price, rooms, size, image, madeByMe } = props.house;
 
-const numberformater = new Intl.NumberFormat("en-IN", {
+const numberformater = new Intl.NumberFormat("en-EU", {
   style: "currency",
   currency: "EUR",
 });
@@ -27,24 +27,19 @@ function handleDelete(e: Event) {
   e.preventDefault();
   show.value = true;
 }
-
-function handleEdit(e: Event) {
-  e.preventDefault();
-  router.push({ name: "Edit", params: { id } });
-}
 </script>
 
 <template>
   <article class="bg-white rounded-md flex">
-    <div
-      @click="router.push({ name: 'House', params: { id } })"
+    <RouterLink
+      :to="`/House/${id}`"
       :style="{ 'background-image': 'url(' + image + ')' }"
       class="basis-28 shrink-0 aspect-square bg-cover grow-0 rounded-md m-4"
     >
       &nbsp;
-    </div>
-    <div
-      @click="router.push({ name: 'House', params: { id } })"
+    </RouterLink>
+    <RouterLink
+      :to="`/House/${id}`"
       class="shrink flex flex-col justify-around py-4 grow text-grey-500"
     >
       <p class="desktop-header text-black">{{ location.street }}</p>
@@ -55,11 +50,11 @@ function handleEdit(e: Event) {
         <Icon :icon="bath" :value="rooms.bedrooms" />
         <Icon :icon="m2" :value="size" />
       </div>
-    </div>
+    </RouterLink>
     <div v-if="madeByMe" class="p-4 flex items-start gap-2 shrink-0">
-      <button @click="handleEdit">
+      <RouterLink :to="`/Edit/${id}`">
         <img class="h-4" :src="edit" alt="" />
-      </button>
+      </RouterLink>
       <button @click="handleDelete">
         <img class="h-4" :src="deleteIcon" alt="" />
       </button>

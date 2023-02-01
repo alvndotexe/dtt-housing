@@ -62,12 +62,12 @@ export class NetworkError extends Error {
   }
 }
 
-function notFetch(url: string, config: Omit<HttpConfig, "headers">) {
+function notFetch(path: string, config: Omit<HttpConfig, "headers">) {
   const actualConfig = {
     ...config,
     headers: { "X-API-KEY": "nZ9CatLOv48wohJTdgyAk0pSQic52IEz" },
   };
-  return fetch(url, actualConfig)
+  return fetch(`https://api.intern.d-tt.nl/api/${path}`, actualConfig)
     .then((result) => {
       if (!result.ok) throw new NetworkError(result);
       return result;
@@ -79,9 +79,8 @@ type State = {
   houses: Array<House>;
 };
 
-const acceptedMimeTypes = ["image/jpg", "image/png"];
-
 const imageSchema = z.instanceof(File).superRefine((f, ctx) => {
+  const acceptedMimeTypes = ["image/jpg", "image/png"];
   if (!acceptedMimeTypes.includes(f.type)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -168,8 +167,6 @@ export const store = createStore<State>({
   state: { houses: new Array<House>() },
   getters: {
     getHouses: (state) => state.houses,
-    getHouseById: (state) => (id: number) =>
-      state.houses.find((e) => e.id === id),
   },
   mutations: {
     setHouses: (state, houses: Array<House>) => {
@@ -181,8 +178,7 @@ export const store = createStore<State>({
     removeHouse: (state, houseOrID: House | number) => {
       if (typeof houseOrID === "number") {
         state.houses = state.houses.filter((e) => e.id !== houseOrID);
-      }
-      if (typeof houseOrID === "object") {
+      } else {
         state.houses = state.houses.filter((e) => e.id !== houseOrID.id);
       }
     },
@@ -195,7 +191,7 @@ export const store = createStore<State>({
   actions: {
     hasHouses: ({ state }) => state.houses.length > 0,
     getHouses: () =>
-      notFetch("https://api.intern.d-tt.nl/api/houses", {
+      notFetch("houses", {
         method: "GET",
       }).then(async (result) => {
         if (result instanceof Response) {
@@ -228,7 +224,7 @@ export const store = createStore<State>({
         }, new FormData());
       const imageForm = new FormData();
       imageForm.set("image", formResults.data.image);
-      return notFetch("https://api.intern.d-tt.nl/api/houses", {
+      return notFetch("houses", {
         method: "POST",
         body: houseForm,
       })
@@ -248,7 +244,7 @@ export const store = createStore<State>({
           }
         })
         .then((id) =>
-          notFetch(`https://api.intern.d-tt.nl/api/houses/${id}/upload`, {
+          notFetch(`houses/${id}/upload`, {
             method: "POST",
             body: imageForm,
           })
@@ -262,7 +258,7 @@ export const store = createStore<State>({
         });
     },
     deleteHouse: ({ commit, state }, id: number) =>
-      notFetch(`https://api.intern.d-tt.nl/api/houses/${id}`, {
+      notFetch(`houses/${id}`, {
         method: "DELETE",
       })
         .then((r): Success => {
@@ -288,13 +284,10 @@ export const store = createStore<State>({
           return form;
         }, new FormData());
 
-      const postHouse = notFetch(
-        `https://api.intern.d-tt.nl/api/houses/${id}`,
-        {
-          method: "POST",
-          body: houseForm,
-        }
-      )
+      const postHouse = notFetch(`houses/${id}`, {
+        method: "POST",
+        body: houseForm,
+      })
         .then((r) => {
           if (r instanceof Error) throw r;
           else return dispatch("getHouses");
@@ -310,7 +303,7 @@ export const store = createStore<State>({
         imageForm.set("image", formResults.data.image);
         return postHouse
           .then(() =>
-            notFetch(`https://api.intern.d-tt.nl/api/houses/${id}/upload`, {
+            notFetch(`houses/${id}/upload`, {
               method: "POST",
               body: imageForm,
             })

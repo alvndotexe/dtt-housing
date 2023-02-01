@@ -31,7 +31,7 @@ const id = computed(() => {
 });
 
 const house: ComputedRef<House> = computed(() =>
-  store.getters.getHouseById(id.value)
+  store.getters.getHouses.find((e: House) => e.id === id.value)
 );
 const otherHouses: ComputedRef<Array<House>> = computed(() =>
   house.value
@@ -64,13 +64,9 @@ function handleDelete(e: Event) {
       />
       <p class="hidden buttons-and-tabs sm:block">Back to overview</p>
       <div v-if="house.madeByMe" class="flex gap-3 sm:hidden">
-        <button
-          @click="
-            () => router.push({ name: 'Edit', params: { id: house?.id } })
-          "
-        >
+        <RouterLink :to="`/Edit/${house.id}`">
           <img class="w-4 h-4" :src="editIconWhite" alt="" />
-        </button>
+        </RouterLink>
         <button @click="handleDelete">
           <img class="w-4 h-4" :src="deleteIconWhite" alt="" />
         </button>
@@ -87,13 +83,9 @@ function handleDelete(e: Event) {
               {{ house?.location.street }}
             </h2>
             <div class="hidden sm:flex gap-4" v-if="house?.madeByMe">
-              <button
-                @click="
-                  () => router.push({ name: 'Edit', params: { id: house?.id } })
-                "
-              >
+              <RouterLink :to="`/Edit/${house.id}`">
                 <img class="h-5 aspect-square" :src="editIcon" />
-              </button>
+              </RouterLink>
               <button @click="handleDelete">
                 <img class="h-5 aspect-square" :src="deleteIcon" />
               </button>

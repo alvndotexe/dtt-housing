@@ -33,6 +33,10 @@ const handleOrderBy = () => {
   if (orderBy.value === "asc") orderBy.value = "dsc";
   else orderBy.value = "asc";
 };
+
+const toLowerCaseInput = (e: Event) => {
+  input.value = e.target.value.toLowerCase();
+};
 </script>
 
 <template>
@@ -41,14 +45,14 @@ const handleOrderBy = () => {
       class="grid grid-rows-1 sm:flex sm:justify-between my-6 [&>*]:[grid-area:1/1]"
     >
       <p class="text-center sm:text-start grow header-1">Houses</p>
-      <button
-        @click="() => router.push({ name: 'Add' })"
+      <RouterLink
+        to="/Add"
         class="sm:bg-red place-self-end sm:text-white rounded-md p-2 buttons-and-tabs flex items-center gap-4 px-6"
       >
         <img class="hidden sm:block w-4 h-4" :src="addIcon" alt="" />
         <img class="block sm:hidden w-4 h-4" :src="addIconGrey" alt="" />
         <p class="hidden sm:block">Create New</p>
-      </button>
+      </RouterLink>
     </div>
     <div class="grid grid-rows-2 gap-3 sm:flex sm:justify-between">
       <div
@@ -57,7 +61,7 @@ const handleOrderBy = () => {
         <img :src="searchIcon" class="h-5 w-5" alt="" />
         <input
           class="p-2 h-12 bg-grey-300 placeholder:text-grey-500 focus:outline-none"
-          v-model="input.value"
+          @keyup="toLowerCaseInput"
           type="text"
           placeholder="Search for a house"
         />
@@ -69,12 +73,12 @@ const handleOrderBy = () => {
         class="flex justify-between bg-grey-400 text-white list-none rounded-full first:rounded-md last:rounded-md"
       >
         <li
-          :class="{ 'bg-red': sortBy.value === k }"
+          :class="{ 'bg-red': sortBy.value === sortMethod }"
           class="grow text-center rounded-md"
-          v-for="[k, _] in sortMethods"
+          v-for="[sortMethod, _] in sortMethods"
         >
-          <button class="p-2 h-12" @click="() => (sortBy.value = k)">
-            {{ k }}
+          <button class="p-2 h-12" @click="() => (sortBy.value = sortMethod)">
+            {{ sortMethod }}
           </button>
         </li>
         <button

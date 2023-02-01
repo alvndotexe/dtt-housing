@@ -20,9 +20,7 @@ const houses = computed(() =>
     ? data.value
         .sort(props.sortMethod)
         .filter((e) =>
-          e.location.city
-            .toLowerCase()
-            .includes(props.input.value.toLowerCase())
+          e.location.city.toLowerCase().includes(props.input.value)
         )
     : data.value
         .filter((e) =>
@@ -30,11 +28,11 @@ const houses = computed(() =>
         )
         .sort(props.sortMethod)
         .filter((e) =>
-          e.location.city
-            .toLowerCase()
-            .includes(props.input.value.toLowerCase())
+          e.location.city.toLowerCase().includes(props.input.value)
         )
 );
+
+watchEffect(() => console.log(houses.value.map((e) => e.price)));
 </script>
 
 <template>

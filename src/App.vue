@@ -21,15 +21,7 @@ store.dispatch("setHouses").then(() => {
 const isOnAboutPage = computed(() =>
   route.fullPath.toLowerCase().includes("about")
 );
-
-watchEffect(() => {
-  if (!divRef.value) return;
-  divRef.value.addEventListener("resize", (e) => {
-    console.log("pain");
-  });
-});
 </script>
-
 <template>
   <div ref="divRef" class="h-full bg-grey-200 flex flex-col justify-between">
     <nav
@@ -41,12 +33,10 @@ watchEffect(() => {
       <RouterLink class="sm:hidden" to="/About">
         <img class="w-10" :src="isOnAboutPage ? AboutSelected : About" />
       </RouterLink>
-      <img
-        @click="router.push({ name: 'Home' })"
-        class="hidden sm:block w-40 h-[auto]"
-        :src="logo"
-        alt=""
-      />
+      <RouterLink :to="`/`">
+        <img class="hidden sm:block w-40 h-[auto]" :src="logo" alt="" />
+      </RouterLink>
+
       <RouterLink
         class="hidden sm:block header-2 font-monster"
         :class="{

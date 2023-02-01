@@ -16,7 +16,10 @@ type editHouse = {
 };
 
 const store = useStore(key);
-const props = defineProps<{ type: addHouse | editHouse }>();
+const props = defineProps<{
+  type: addHouse | editHouse;
+  onSuccess?: (args?: unknown) => void;
+}>();
 const errors = ref<Map<string, string>>(new Map());
 const form = ref<HTMLFormElement | null>(null);
 const formState = ref<"inert" | "sent" | "sending" | "error">("inert");
@@ -24,7 +27,9 @@ const house = computed<Partial<House>>({
   //very confused on what to do here since actions are asynchronous and async getters dont sound like a good idea
   get: (): Partial<House> =>
     props.type.dispatch === "editHouse"
-      ? computed(() => store.getters.getHouseById(props.type.id)).value
+      ? computed(() =>
+          store.getters.getHouses.filter((e: House) => e.id === props.type.id)
+        ).value
       : {},
   set: (newValue) => newValue,
 });
@@ -48,7 +53,6 @@ const handleSubmit = (e: Event) => {
       : { formData, id: house.value.id };
   formState.value = "sending";
   store.dispatch(props.type.dispatch, dispatchProps).then((results) => {
-    formState.value = "error";
     if (results.type === "error") {
       [...results.data.entries()].forEach(([k, v]) => {
         if (v.value instanceof File) {
@@ -67,7 +71,10 @@ const handleSubmit = (e: Event) => {
     }
     console.log(results);
 
-    if (results.ok) formState.value = "sent";
+    if (results.ok) {
+      if (props.onSuccess) props.onSuccess();
+      else formState.value = "sent";
+    }
   });
 };
 

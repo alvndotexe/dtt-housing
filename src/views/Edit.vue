@@ -10,6 +10,10 @@ const id = computed(() => {
   const id = route.params.id;
   return id instanceof Array ? parseInt(id[0]) : parseInt(id);
 });
+
+function onSuccess() {
+  router.go(-1);
+}
 </script>
 <template>
   <div
@@ -21,5 +25,5 @@ const id = computed(() => {
     <h1 class="sm:hidden header-1 w-full text-center">Edit Listing</h1>
   </div>
   <h1 class="hidden sm:block header-1 py-2">Edit Listing</h1>
-  <EditHouse :type="{ dispatch: 'editHouse', id }" />
+  <EditHouse :type="{ dispatch: 'editHouse', id }" :on-success="onSuccess" />
 </template>
