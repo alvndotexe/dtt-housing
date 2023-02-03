@@ -1,14 +1,12 @@
 <script lang="ts" setup>
-import addIcon from "@/assets/ic_plus_white@3x.png";
-import addIconGrey from "@/assets/ic_plus_grey@3x.png";
-import searchIcon from "@/assets/ic_search@3x.png";
 import clearIcon from "@/assets/ic_clear@3x.png";
+import addIconGrey from "@/assets/ic_plus_grey@3x.png";
+import addIcon from "@/assets/ic_plus_white@3x.png";
+import searchIcon from "@/assets/ic_search@3x.png";
 import Houses from "@/components/Houses.vue";
-import { House, key } from "@/store";
+import { House } from "@/store";
 import { computed, reactive, Suspense } from "vue";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
 const input = reactive({ value: "" });
 
 const sortBy = reactive<{ value: "price" | "size" | "bedrooms" | "bathrooms" }>(

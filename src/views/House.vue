@@ -15,29 +15,28 @@ import m2Icon from "@/assets/ic_size@3x.png";
 import Dialogue from "@/components/Dialogue.vue";
 import HouseArticle from "@/components/HouseArticle.vue";
 import Icon from "@/components/Icon.vue";
-import { House, key } from "@/store";
-import { computed, ComputedRef, reactive } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useStore } from "vuex";
+import { House, useStore } from "@/store";
+import { computed, ComputedRef, reactive, ref } from "vue";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
-const store = useStore(key);
+const store = useStore();
 
+const house = ref<House | "loading" | "error">("loading");
 const showDialogue = reactive({ value: false });
-const id = computed(() => {
-  const id = route.params.id;
-  return id instanceof Array ? null : parseInt(id);
+const id = parseInt(route.params.id as string);
+
+store.dispatch("getHouseByID", id).then((r) => {
+  if (!r) house.value = "error";
+  else house.value = r;
 });
 
-const house: ComputedRef<House> = computed(() =>
-  store.getters.getHouses.find((e: House) => e.id === id.value)
-);
-const otherHouses: ComputedRef<Array<House>> = computed(() =>
-  house.value
+const otherHouses = computed(() =>
+  typeof house.value === "object"
     ? store.getters.getHouses
-        .filter((e: House) => e.location.city === house.value!.location.city)
-        .filter((e: House) => e.id !== house?.value.id)
+        .filter((e: House) => e.location.city === house.value?.location.city)
+        .filter((e: House) => e.id !== house?.value?.id)
         .splice(0, 3)
     : null
 );
@@ -48,46 +47,49 @@ function handleDelete(e: Event) {
 }
 </script>
 <template>
-  <section class="relative sm:static">
+  <section class="relative sm:static" v-if="typeof house === 'object'">
     <div
-      class="flex px-3 top-5 absolute sm:static w-full z-10 gap-2 justify-between sm:justify-start sm:gap-4 sm:my-6 items-center"
+      class="absolute top-5 z-10 flex w-full items-center justify-between gap-2 px-3 sm:static sm:my-6 sm:justify-start sm:gap-4"
     >
-      <img
-        @click="router.go(-1)"
-        class="w-4 h-4 sm:hidden hover:cursor-pointer"
-        :src="backIconWhite"
-      />
-      <img
-        @click="router.go(-1)"
-        class="w-4 h-4 sm:block hidden hover:cursor-pointer"
-        :src="backIcon"
-      />
-      <p class="hidden buttons-and-tabs sm:block">Back to overview</p>
+      <RouterLink to="/">
+        <img
+          class="h-4 w-4 hover:cursor-pointer sm:hidden"
+          :src="backIconWhite"
+        />
+      </RouterLink>
+
+      <RouterLink to="/">
+        <img
+          class="hidden h-4 w-4 hover:cursor-pointer sm:block"
+          :src="backIcon"
+        />
+      </RouterLink>
+      <p class="buttons-and-tabs hidden sm:block">Back to overview</p>
       <div v-if="house.madeByMe" class="flex gap-3 sm:hidden">
         <RouterLink :to="`/Edit/${house.id}`">
-          <img class="w-4 h-4" :src="editIconWhite" alt="" />
+          <img class="h-4 w-4" :src="editIconWhite" alt="" />
         </RouterLink>
         <button @click="handleDelete">
-          <img class="w-4 h-4" :src="deleteIconWhite" alt="" />
+          <img class="h-4 w-4" :src="deleteIconWhite" alt="" />
         </button>
       </div>
     </div>
     <div class="flex flex-col">
-      <article class="bg-white w-full">
+      <article class="w-full bg-white">
         <img :src="house?.image" alt="" />
         <div
-          class="p-4 rounded-2xl sm:rounded-none w-full h-max text-grey-500 translate-y-[-1rem] sm:translate-y-0 bg-white"
+          class="h-max w-full translate-y-[-1rem] rounded-2xl bg-white p-4 text-grey-500 sm:translate-y-0 sm:rounded-none"
         >
           <div class="flex justify-between">
             <h2 class="header-1 text-black">
               {{ house?.location.street }}
             </h2>
-            <div class="hidden sm:flex gap-4" v-if="house?.madeByMe">
+            <div class="hidden gap-4 sm:flex" v-if="house?.madeByMe">
               <RouterLink :to="`/Edit/${house.id}`">
-                <img class="h-5 aspect-square" :src="editIcon" />
+                <img class="aspect-square h-5" :src="editIcon" />
               </RouterLink>
               <button @click="handleDelete">
-                <img class="h-5 aspect-square" :src="deleteIcon" />
+                <img class="aspect-square h-5" :src="deleteIcon" />
               </button>
             </div>
           </div>
@@ -96,12 +98,12 @@ function handleDelete(e: Event) {
             :icon="locationIcon"
             :value="house?.location.zip + '' + house?.location.city"
           />
-          <div class="flex gap-6 my-3">
+          <div class="my-3 flex gap-6">
             <Icon :icon="priceIcon" :value="house?.price" />
             <Icon :icon="m2Icon" :value="house?.size" />
             <Icon :icon="buildIcon" :value="house?.constructionYear" />
           </div>
-          <div class="flex gap-6 my-3">
+          <div class="my-3 flex gap-6">
             <Icon :icon="bedIcon" :value="house?.rooms.bedrooms" />
             <Icon :icon="bathIcon" :value="house?.rooms.bedrooms" />
             <Icon v-if="house?.hasGarage" :icon="garageIcon" :value="''" />
@@ -112,12 +114,15 @@ function handleDelete(e: Event) {
       <div class="p-4 sm:p-0 sm:py-4" v-if="otherHouses.length > 0">
         <h2 class="header-2">Reccommended for you</h2>
         <ul class="w-full">
-          <li class="list-none my-4" v-for="otherHouse in otherHouses">
-            <HouseArticle class="list-none my-4" :house="otherHouse" />
+          <li class="my-4 list-none" v-for="otherHouse in otherHouses">
+            <HouseArticle class="my-4 list-none" :house="otherHouse" />
           </li>
         </ul>
       </div>
     </div>
+  </section>
+  <section v-else>
+    <p>{{ house }}</p>
   </section>
   <Dialogue :show="showDialogue" :id="house.id" />
 </template>
