@@ -37,28 +37,56 @@ watchEffect(() => {
 </script>
 
 <template>
-  <dialog
-    class="m-auto rounded-md p-6 text-center backdrop:bg-[rgba(0,0,0,0.7)]"
-    ref="dialogRef"
-  >
-    <div class="mx-10">
+  <dialog ref="dialogRef">
+    <div>
       <h1 class="header-1">Delete listing</h1>
-      <p class="body pt-4 text-grey-500">
-        Are you sure you want to delet this listing?
-      </p>
-      <p class="body pb-10 text-grey-500">This action cannot be undone</p>
-      <button
-        @click="deleteHouse"
-        class="buttons-and-tabs block w-full rounded-md bg-red py-3 text-white"
-      >
-        YES,DELETE
-      </button>
-      <button
-        @click="handleCancle"
-        class="buttons-and-tabs mt-6 block w-full rounded-md bg-grey-500 py-3 text-white"
-      >
-        GO BACK
-      </button>
+      <p class="body">Are you sure you want to delet this listing?</p>
+      <p class="body">This action cannot be undone</p>
+      <button @click="deleteHouse" class="buttons-and-tabs">YES,DELETE</button>
+      <button @click="handleCancle" class="buttons-and-tabs">GO BACK</button>
     </div>
   </dialog>
 </template>
+
+<style scoped>
+/* class="m-auto rounded-md p-6 text-center backdrop:bg-[rgba(0,0,0,0.7)]" */
+dialog {
+  margin: auto;
+  border-radius: var(--rounded-md);
+  text-align: center;
+  padding: 1.5rem;
+}
+
+div {
+  margin-inline: 2.5rem;
+}
+
+p:first-of-type {
+  margin-top: 1rem;
+}
+
+p:last-of-type {
+  margin-bottom: 1rem;
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* class="buttons-and-tabs mt-6 block w-full rounded-md bg-grey-500 py-3 text-white" */
+button {
+  width: 100%;
+  padding-block: 0.75rem;
+  border-radius: var(--rounded-md);
+  color: white;
+}
+
+button:first-of-type {
+  background-color: var(--red);
+}
+
+button:last-of-type {
+  margin-top: 1.25rem;
+  background-color: var(--gray-500);
+}
+</style>

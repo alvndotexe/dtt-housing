@@ -23,21 +23,76 @@ function onSuccess() {
 }
 </script>
 <template>
-  <div v-if="house">
-    <RouterLink
-      to="/"
-      class="grid px-2 py-4 hover:cursor-pointer sm:px-0 [&>*]:[grid-area:1/1]"
-    >
-      <img class="h-4 w-4" :src="backIcon" alt="" />
-      <p class="hidden text-center sm:hidden">Back to overview</p>
-      <h1 class="header-1 w-full text-center sm:hidden">Edit Listing</h1>
+  <section class="section" id="main">
+    <RouterLink to="/">
+      <img :src="backIcon" alt="" />
+      <p>Back to overview</p>
+      <h1 class="header-1 mobile-header">Edit Listing</h1>
     </RouterLink>
-    <h1 class="header-1 hidden py-2 sm:block">Edit Listing</h1>
+    <h1 class="header-1 header">Edit Listing</h1>
+
     <EditHouse
       :type="{ dispatch: 'editHouse', house }"
       :on-success="onSuccess"
+      v-if="houseExists && house"
     />
-  </div>
-  <div v-if="!house"></div>
-  <div v-if="!houseExists">not found</div>
+    <div v-else>not found</div>
+  </section>
 </template>
+
+<style scoped>
+a {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding-block: 1rem;
+  padding-inline: 0.5rem;
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+a > * {
+  grid-area: 1/1;
+}
+
+img {
+  width: 1rem;
+  height: 1rem;
+}
+
+p {
+  text-align: center;
+  color: black;
+  display: none;
+}
+
+h1 {
+  display: inline;
+  text-align: center;
+}
+
+.header {
+  display: none;
+}
+
+@container (min-width: calc(640px - 0.75rem)) {
+  div {
+    padding-inline: 0rem;
+  }
+
+  p {
+    display: block;
+  }
+
+  .mobile-header {
+    display: none;
+  }
+
+  .header {
+    text-align: left;
+    display: block;
+  }
+}
+</style>

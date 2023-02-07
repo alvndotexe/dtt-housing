@@ -14,29 +14,53 @@ const props = defineProps<{
 
 const input = reactive({ value: props.formData.get(props.name)?.value });
 const errorMessage = computed(
-  () => props.formData.get(props.name)!.errorMessage
+  () => props.formData.get(props.name)?.errorMessage
 );
 </script>
 <template>
-  <div class="rounded-md">
-    <label class="my-2 input-field-title block" :for="props.name">{{
-      props.label
-    }}</label>
+  <div>
+    <label class="input-field-title" :for="props.name">{{ props.label }}</label>
     <input
-      class="h-12 p-4 w-full rounded-md"
-      :class="
-        errorMessage.length > 0
-          ? 'text-red outline outline-[2px] outline-red'
-          : ''
-      "
+      :class="errorMessage ? 'incorrect' : ''"
       :type="props.type"
       :id="props.name"
       :name="props.name"
       v-model.trim="input.value"
       @input="$emit('handleChange', input.value, props.name)"
     />
-    <p class="error-message text-red my-2" v-if="errorMessage.length > 0">
+    <p class="error-message" v-if="errorMessage">
       {{ formData.get(props.name)?.errorMessage }}
     </p>
   </div>
 </template>
+
+<style scoped>
+.container {
+  border-radius: var(--rounded-md);
+}
+
+label {
+  margin-block: 0.5rem;
+  display: block;
+}
+
+input {
+  height: 3rem;
+  border-radius: var(--rounded-md);
+  padding: 1rem;
+  width: 100%;
+}
+
+p {
+  margin-block: 0.5rem;
+  color: red;
+}
+
+.incorrect:is(input) {
+  outline: var(--red) solid 2px;
+}
+
+.incorrect {
+  color: var(--red);
+}
+</style>

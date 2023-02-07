@@ -207,7 +207,6 @@ const actions: ActionTree<State, State> & Actions<State> = {
                 throw Error;
               } else {
                 console.log(result);
-
                 return { type: "Success", data: undefined };
               }
             }
@@ -236,8 +235,13 @@ const actions: ActionTree<State, State> & Actions<State> = {
       body: houseForm,
     })
       .then((r) => {
-        if (r instanceof Error) throw r;
-        else return dispatch("getHouses", undefined);
+        if (r instanceof Error) {
+          console.log(r.response.status);
+          console.log(r);
+        } else {
+          console.log(r.status);
+          return dispatch("getHouses", undefined);
+        }
       })
       .then((r): Success<undefined> => {
         if (r instanceof Error) throw r;

@@ -16,30 +16,37 @@ import Dialogue from "@/components/Dialogue.vue";
 import HouseArticle from "@/components/HouseArticle.vue";
 import Icon from "@/components/Icon.vue";
 import { House, useStore } from "@/store";
-import { computed, ComputedRef, reactive, ref } from "vue";
+import { reactive, ref, watchEffect } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
-const router = useRouter();
 const store = useStore();
 
 const house = ref<House | "loading" | "error">("loading");
+let otherHouses = reactive<[] | Array<House>>([]);
 const showDialogue = reactive({ value: false });
 const id = parseInt(route.params.id as string);
 
-store.dispatch("getHouseByID", id).then((r) => {
-  if (!r) house.value = "error";
-  else house.value = r;
+store.dispatch("getHouses", undefined).then((result) => {
+  if (result instanceof Error) house.value = "error";
+  else {
+    const possibleHouse = result.find(
+      (e) => e.id === parseInt(route.params.id as string)
+    );
+    if (!possibleHouse) house.value = "error";
+    else {
+      house.value = possibleHouse;
+      otherHouses = result
+        .filter(
+          (e) =>
+            e.location.street ===
+              (house.value as unknown as House).location.street &&
+            e.id !== (house.value as unknown as House).id
+        )
+        .slice(0, 3);
+    }
+  }
 });
-
-const otherHouses = computed(() =>
-  typeof house.value === "object"
-    ? store.getters.getHouses
-        .filter((e: House) => e.location.city === house.value?.location.city)
-        .filter((e: House) => e.id !== house?.value?.id)
-        .splice(0, 3)
-    : null
-);
 
 function handleDelete(e: Event) {
   e.preventDefault();
@@ -47,82 +54,171 @@ function handleDelete(e: Event) {
 }
 </script>
 <template>
-  <section class="relative sm:static" v-if="typeof house === 'object'">
-    <div
-      class="absolute top-5 z-10 flex w-full items-center justify-between gap-2 px-3 sm:static sm:my-6 sm:justify-start sm:gap-4"
-    >
-      <RouterLink to="/">
-        <img
-          class="h-4 w-4 hover:cursor-pointer sm:hidden"
-          :src="backIconWhite"
-        />
-      </RouterLink>
-
-      <RouterLink to="/">
-        <img
-          class="hidden h-4 w-4 hover:cursor-pointer sm:block"
-          :src="backIcon"
-        />
-      </RouterLink>
-      <p class="buttons-and-tabs hidden sm:block">Back to overview</p>
-      <div v-if="house.madeByMe" class="flex gap-3 sm:hidden">
-        <RouterLink :to="`/Edit/${house.id}`">
-          <img class="h-4 w-4" :src="editIconWhite" alt="" />
-        </RouterLink>
-        <button @click="handleDelete">
-          <img class="h-4 w-4" :src="deleteIconWhite" alt="" />
-        </button>
-      </div>
-    </div>
-    <div class="flex flex-col">
-      <article class="w-full bg-white">
-        <img :src="house?.image" alt="" />
-        <div
-          class="h-max w-full translate-y-[-1rem] rounded-2xl bg-white p-4 text-grey-500 sm:translate-y-0 sm:rounded-none"
-        >
-          <div class="flex justify-between">
-            <h2 class="header-1 text-black">
-              {{ house?.location.street }}
-            </h2>
-            <div class="hidden gap-4 sm:flex" v-if="house?.madeByMe">
-              <RouterLink :to="`/Edit/${house.id}`">
-                <img class="aspect-square h-5" :src="editIcon" />
-              </RouterLink>
-              <button @click="handleDelete">
-                <img class="aspect-square h-5" :src="deleteIcon" />
-              </button>
-            </div>
+  <section class="section">
+    <RouterLink to="/" class="back">
+      <img :src="backIcon" alt="" />
+      <p class="header-2">Back to overview</p>
+    </RouterLink>
+    <div class="container" v-if="typeof house === 'object'">
+      <div class="house">
+        <div class="mobile-navigation">
+          <RouterLink to="/">
+            <img class="small-icon" :src="backIconWhite" />
+          </RouterLink>
+          <div v-if="house.madeByMe" class="house-article-made-by-me">
+            <RouterLink :to="`/Edit/${house.id}`">
+              <img class="small-icon" :src="editIconWhite" alt="" />
+            </RouterLink>
+            <button @click="handleDelete">
+              <img class="small-icon" :src="deleteIconWhite" alt="" />
+            </button>
           </div>
-          <Icon
-            class="my-3"
-            :icon="locationIcon"
-            :value="house?.location.zip + '' + house?.location.city"
-          />
-          <div class="my-3 flex gap-6">
-            <Icon :icon="priceIcon" :value="house?.price" />
-            <Icon :icon="m2Icon" :value="house?.size" />
-            <Icon :icon="buildIcon" :value="house?.constructionYear" />
-          </div>
-          <div class="my-3 flex gap-6">
-            <Icon :icon="bedIcon" :value="house?.rooms.bedrooms" />
-            <Icon :icon="bathIcon" :value="house?.rooms.bedrooms" />
-            <Icon v-if="house?.hasGarage" :icon="garageIcon" :value="''" />
-          </div>
-          <p class="body">{{ house?.description }}</p>
         </div>
-      </article>
-      <div class="p-4 sm:p-0 sm:py-4" v-if="otherHouses.length > 0">
+        <article class="house-article">
+          <img :src="house?.image" alt="" />
+          <div class="house-article-text">
+            <div class="flex justify-between">
+              <h2 class="header-1">
+                {{ house?.location.street }}
+              </h2>
+              <div class="house-article-made-by-me" v-if="house?.madeByMe">
+                <RouterLink :to="`/Edit/${house.id}`">
+                  <img class="small-icon" :src="editIcon" />
+                </RouterLink>
+                <button @click="handleDelete">
+                  <img class="small-icon" :src="deleteIcon" />
+                </button>
+              </div>
+            </div>
+            <Icon
+              style="margin-top: 0.75rem"
+              :icon="locationIcon"
+              :value="house?.location.zip + '' + house?.location.city"
+            />
+            <div class="icon-row">
+              <Icon :icon="priceIcon" :value="house?.price" />
+              <Icon :icon="m2Icon" :value="house?.size" />
+              <Icon :icon="buildIcon" :value="house?.constructionYear" />
+            </div>
+            <div class="icon-row">
+              <Icon :icon="bedIcon" :value="house?.rooms.bedrooms" />
+              <Icon :icon="bathIcon" :value="house?.rooms.bedrooms" />
+              <Icon v-if="house?.hasGarage" :icon="garageIcon" :value="''" />
+            </div>
+            <p class="body">{{ house?.description }}</p>
+          </div>
+        </article>
+      </div>
+      <div class="other-houses" v-if="otherHouses && otherHouses.length > 0">
         <h2 class="header-2">Reccommended for you</h2>
-        <ul class="w-full">
-          <li class="my-4 list-none" v-for="otherHouse in otherHouses">
-            <HouseArticle class="my-4 list-none" :house="otherHouse" />
+        <ul>
+          <li v-for="otherHouse in otherHouses">
+            <HouseArticle :house="otherHouse" />
           </li>
         </ul>
       </div>
     </div>
   </section>
-  <section v-else>
-    <p>{{ house }}</p>
-  </section>
   <Dialogue :show="showDialogue" :id="house.id" />
 </template>
+
+<style scoped>
+li {
+  margin-top: 1rem;
+  width: 100%;
+  list-style: none;
+}
+.back {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+}
+.back > img {
+  height: 1.25rem;
+  margin-block: 2rem;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.house {
+  position: relative;
+  flex: 2;
+}
+
+.other-houses {
+  padding: 0.5rem;
+  padding-top: 0;
+  flex: 1;
+}
+
+.icon-row {
+  display: flex;
+  margin-top: 0.75rem;
+  gap: 2rem;
+}
+
+.body {
+  padding-top: 1rem;
+}
+
+/* class="h-max w-full translate-y-[-1rem] rounded-2xl bg-white p-4 text-grey-500 sm:translate-y-0 sm:rounded-none" */
+
+.house-article-text {
+  border-top-right-radius: var(--rounded-2xl);
+  border-top-left-radius: var(--rounded-2xl);
+  color: var(--gray-500);
+  background-color: white;
+  transform: translate(0, -1rem);
+  padding: 0.5rem;
+}
+
+.house-article-made-by-me {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-navigation {
+  position: absolute;
+  top: 1.25rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-inline: 0.75rem;
+  width: 100vw;
+}
+
+@media (min-width: 640px) {
+  .back {
+    display: flex;
+  }
+
+  .mobile-navigation {
+    display: none;
+  }
+
+  .house-article {
+    border-radius: 0px;
+  }
+
+  .house-article-made-by-me {
+    display: flex;
+  }
+
+  .house-article-text {
+    transform: translate(0);
+  }
+}
+
+@media (max-width: 800px) {
+  .container {
+    flex-direction: column;
+  }
+}
+</style>

@@ -10,16 +10,13 @@ const props = defineProps<{
 
 const div = ref<HTMLDivElement | null>(null);
 const input = ref<HTMLInputElement | null>(null);
-const file = reactive<{
-  value: FormElement<SubmittedHouse["image"]>["value"] | undefined;
-}>({
-  value: props.formData.get("image")?.value,
-});
+
 const emit = defineEmits(["handleChange"]);
 const backgroundImage = computed(() => {
   const image = props.formData.get("image") as
     | FormElement<SubmittedHouse["image"]>
     | undefined;
+  console.log(image);
   if (!image) return null;
   if (image.value instanceof File) return URL.createObjectURL(image.value);
   if (image.value.length === 0) return null;
@@ -27,7 +24,6 @@ const backgroundImage = computed(() => {
 });
 
 const errorMessage = computed(() => props.formData.get("image")?.errorMessage);
-watchEffect(() => console.log(props.formData.get("image")?.value));
 
 const imagePreviewSrc = (e: Event) => {
   if (input.value == null || div.value == null) return;
@@ -36,40 +32,36 @@ const imagePreviewSrc = (e: Event) => {
   const file = files.item(0);
   if (!file) return;
   emit("handleChange", file, "image");
-  div.value.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+  const url = URL.createObjectURL(file);
+  div.value.style.backgroundImage = `url(${url})`;
 };
 const redirectButtonPress = (e: Event) => {
-  e.preventDefault();
   if (input.value == null) return;
   input.value.click();
 };
 
 const removeImage = (e: Event) => {
   if (div.value == null || input.value === null) return;
-  input.value = null;
+  emit("handleChange", "", "image");
+  input.value.value = "";
   div.value.style.backgroundImage = "";
 };
 </script>
 <template>
-  <div class="relative">
+  <div class="container">
     <label for="image" class="input-field-title my-2 block"
       >Upload File(PNG or JPG)</label
     >
     <div
       ref="div"
       :style="{ 'background-image': `url(${backgroundImage})` }"
-      :class="{
-        'border-dashed': !backgroundImage,
-        'border-black': !backgroundImage,
-        'border-[2px]': !backgroundImage,
-      }"
-      class="grid h-28 w-28 place-items-center rounded-md bg-contain"
+      :class="!backgroundImage ? 'pending' : ''"
+      class="preview-img-container"
       @click="redirectButtonPress"
     >
       <img
-        :class="backgroundImage ? '' : 'hidden'"
-        class="h-10"
-        v-if="!backgroundImage"
+        :class="backgroundImage ? 'hidden' : ''"
+        class="add-img-icon"
         :src="addIcon"
         alt=""
       />
@@ -86,16 +78,52 @@ const removeImage = (e: Event) => {
     <button
       type="button"
       :class="backgroundImage ? '' : 'hidden'"
-      class="absolute left-[5.8rem] top-[20px] z-10 block bg-contain"
       @click="removeImage"
     >
-      <img :src="clearIcon" class="h-10" alt="" />
+      <img :src="clearIcon" class="clear-icon" alt="" />
     </button>
-    <div
-      :class="errorMessage ? 'error-message text-red' : ''"
-      v-if="errorMessage"
-    >
-      Required field
-    </div>
+    <span class="error-message" v-if="errorMessage"> Required field </span>
   </div>
 </template>
+
+<style scoped>
+label {
+  display: block;
+  margin-block: 0.5rem;
+}
+
+button {
+  position: absolute;
+  left: 5.8rem;
+  top: 20px;
+  z-index: 10;
+  display: block;
+  background-size: contain;
+}
+
+span {
+  color: var(--red);
+}
+
+.clear-icon,
+.add-img-icon {
+  height: 2.5rem;
+}
+
+.container {
+  position: relative;
+}
+
+.preview-img-container {
+  display: grid;
+  height: 7rem;
+  width: 7rem;
+  place-items: center;
+  border-radius: var(--rounded-md);
+  background-size: contain;
+}
+
+.pending {
+  border: 2px dashed var(--gray-500);
+}
+</style>

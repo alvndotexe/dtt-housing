@@ -3,7 +3,6 @@ import Add from "@/views/Add.vue";
 import Edit from "@/views/Edit.vue";
 import Home from "@/views/Home.vue";
 import House from "@/views/House.vue";
-import NotFound from "@/views/NotFound.vue";
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
@@ -17,7 +16,6 @@ const router = createRouter({
     { path: "/About", name: "About", component: About },
     { path: "/House/:id", name: "House", component: House },
     { path: "/Edit/:id", name: "Edit", component: Edit },
-    { path: "/404", name: "404", component: NotFound },
     { path: "/Add", name: "Add", component: Add },
   ],
 });

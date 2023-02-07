@@ -38,27 +38,19 @@ const toLowerCaseInput = (e: Event) => {
 </script>
 
 <template>
-  <section class="h-full flex flex-col px-3">
-    <div
-      class="grid grid-rows-1 sm:flex sm:justify-between my-6 [&>*]:[grid-area:1/1]"
-    >
-      <p class="text-center sm:text-start grow header-1">Houses</p>
-      <RouterLink
-        to="/Add"
-        class="sm:bg-red place-self-end sm:text-white rounded-md p-2 buttons-and-tabs flex items-center gap-4 px-6"
-      >
-        <img class="hidden sm:block w-4 h-4" :src="addIcon" alt="" />
-        <img class="block sm:hidden w-4 h-4" :src="addIconGrey" alt="" />
-        <p class="hidden sm:block">Create New</p>
+  <section class="section">
+    <div class="header">
+      <p class="header-1 header-text">Houses</p>
+      <RouterLink to="/Add" class="create-new-button buttons-and-tabs">
+        <img class="icon white" :src="addIcon" alt="" />
+        <img class="icon gray" :src="addIconGrey" alt="" />
+        <p class="create-new-button-text">Create New</p>
       </RouterLink>
     </div>
-    <div class="grid grid-rows-2 gap-3 sm:flex sm:justify-between">
-      <div
-        class="grid grid-cols-[auto_1fr_auto] items-center bg-grey-300 px-2 rounded-md"
-      >
-        <img :src="searchIcon" class="h-5 w-5" alt="" />
+    <div class="search">
+      <div class="search-bar-container">
+        <img :src="searchIcon" alt="" />
         <input
-          class="p-2 h-12 bg-grey-300 placeholder:text-grey-500 focus:outline-none"
           @keyup="toLowerCaseInput"
           type="text"
           placeholder="Search for a house"
@@ -67,29 +59,26 @@ const toLowerCaseInput = (e: Event) => {
           <img :src="clearIcon" class="h-5 w-5" alt="" />
         </button>
       </div>
-      <ul
-        class="flex justify-between bg-grey-400 text-white list-none rounded-full first:rounded-md last:rounded-md"
-      >
+      <ul class="search-category-list">
         <li
-          :class="{ 'bg-red': sortBy.value === sortMethod }"
-          class="grow text-center rounded-md"
+          :style="{
+            'background-color':
+              sortBy.value === sortMethod ? 'var(--red)' : 'var(--gray-400)',
+          }"
           v-for="[sortMethod, _] in sortMethods"
         >
-          <button class="p-2 h-12" @click="() => (sortBy.value = sortMethod)">
+          <button class="" @click="() => (sortBy.value = sortMethod)">
             {{ sortMethod }}
           </button>
         </li>
-        <button
-          class="text-white bg-grey-500 p-2 rounded-r-md"
-          @click="handleOrderBy"
-        >
+        <button @click="handleOrderBy">
           {{ orderBy.value }}
         </button>
       </ul>
     </div>
     <Suspense>
       <template #default>
-        <Houses :input="input" :sortMethod="sortMethod" />
+        <Houses :key="sortMethod" :input="input" :sortMethod="sortMethod" />
       </template>
       <template #fallback>
         <h1>loading...</h1>
@@ -97,3 +86,134 @@ const toLowerCaseInput = (e: Event) => {
     </Suspense>
   </section>
 </template>
+
+<style scoped>
+.header {
+  margin-block: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  grid-template-rows: repeat(1, minmax(0, 1fr));
+}
+
+.icon {
+  grid-row: auto/ -1;
+  z-index: 10;
+  height: 1rem;
+  width: 1rem;
+}
+
+.header-text {
+  grid-row: auto/-1;
+}
+
+.icon.gray {
+  display: block;
+}
+
+.icon.white {
+  display: none;
+}
+
+.create-new-button {
+  width: 1rem;
+}
+
+.search {
+  display: grid;
+  grid-template-rows: repeat(1, minmax(1, 1fr));
+  gap: 0.75rem;
+}
+
+.search-bar-container {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  border-radius: var(--rounded-md);
+  background-color: var(--gray-300);
+  padding-inline: 0.5rem;
+}
+
+.search-bar-container > img {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.search-bar-container > input {
+  height: 3rem;
+  background-color: var(--gray-300);
+}
+
+.search-bar-container > input::placeholder {
+  color: var(--gray-500);
+}
+
+.search-bar-container > input:focus {
+  outline: none;
+}
+
+.search-category-list {
+  display: flex;
+  list-style: none;
+  justify-content: space-between;
+  background-color: var(--gray-400);
+  border-radius: var(--rounded-md);
+  color: white;
+}
+
+.search-category-list > li {
+  text-align: center;
+  flex-grow: 1;
+}
+
+.search-category-list > li > button {
+  height: 3rem;
+  padding: 0.5rem;
+}
+
+.search-category-list > button {
+  background-color: var(--gray-500);
+  padding: 0.5rem;
+}
+
+/* class="buttons-and-tabs flex items-center gap-4 place-self-end rounded-md p-2 px-6 sm:bg-red sm:text-white" */
+
+.create-new-button-text {
+  display: none;
+  color: white;
+}
+
+@container (min-width: calc(640px - 0.75rem)) {
+  .header {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .icon.white {
+    display: block;
+  }
+
+  .icon.gray {
+    display: none;
+  }
+
+  .create-new-button-text {
+    display: block;
+  }
+
+  .create-new-button {
+    width: auto;
+    display: flex;
+    background-color: var(--red);
+    gap: 1rem;
+    align-items: center;
+    border-radius: 0.375rem;
+    padding-block: 0.5rem;
+    padding-inline: 1.5rem;
+  }
+
+  .search {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+</style>

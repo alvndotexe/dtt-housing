@@ -69,7 +69,6 @@ const props = defineProps<{
   type: addHouse | editHouse;
   onSuccess?: (args?: unknown) => void;
 }>();
-const errors = ref<Map<string, string>>(new Map());
 const form = ref<HTMLFormElement | null>(null);
 const formState = ref<"inert" | "sent" | "sending" | "error">("inert");
 const [formData, validationMap] = reactive<ReturnType<typeof getInitialState>>(
@@ -185,7 +184,8 @@ function handleSubmit(e: Event) {
 
   store.dispatch(props.type.dispatch, dispatchProps).then((results) => {
     if (results.type === "Error") formState.value = "error";
-    else if (props.onSuccess) {
+    else {
+      console.log(results);
       formState.value = "sent";
       if (props.onSuccess) props.onSuccess();
       formState.value = "inert";
@@ -224,157 +224,213 @@ function handleChange(value: string | File, name: keyof SubmittedHouse) {
   });
 }
 
-const main = ref(document.getElementById("main")!);
-
-onBeforeMount(() => (main.value.style.backgroundImage = `url(${background})`));
-onBeforeUnmount(() => (main.value.style.backgroundImage = ""));
+onBeforeMount(() => {
+  const section = document.getElementById("main");
+  if (!section) return;
+  section.style.backgroundImage = `url(${background})`;
+});
+onBeforeUnmount(() => {
+  const section = document.getElementById("main");
+  if (!section) return;
+  section.style.backgroundImage = "";
+});
 </script>
 
 <template>
-  <div
-    class="px-3 [background-image:linear-gradient(to_botton,blue,red)] sm:m-0 sm:px-0"
-  >
-    <form
-      ref="form"
-      @submit.prevent="handleSubmit"
-      class="flex w-full flex-col sm:w-[min(100vw,400px)]"
-    >
+  <form ref="form" @submit.prevent="handleSubmit">
+    <Input
+      @handle-change="handleChange"
+      :formData="formData"
+      placeholder="Enter the street name"
+      :type="'text'"
+      :name="'streetName'"
+      :label="'Street name*'"
+      required
+    />
+    <div class="input-container">
       <Input
         @handle-change="handleChange"
         :formData="formData"
         placeholder="Enter the street name"
         :type="'text'"
-        :name="'streetName'"
-        :label="'Street name*'"
+        :name="'houseNumber'"
+        :label="'House number*'"
+        required
+      /><Input
+        @handle-change="handleChange"
+        :formData="formData"
+        placeholder="Enter the street name"
+        :type="'text'"
+        :name="'numberAddition'"
+        :label="'Addition'"
         required
       />
-      <div class="flex gap-2">
-        <Input
-          @handle-change="handleChange"
-          :formData="formData"
-          placeholder="Enter the street name"
-          :type="'text'"
-          :name="'houseNumber'"
-          :label="'House number*'"
-          required
-        /><Input
-          @handle-change="handleChange"
-          :formData="formData"
-          placeholder="Enter the street name"
-          :type="'text'"
-          :name="'numberAddition'"
-          :label="'Addition'"
-          required
-        />
-      </div>
-
+    </div>
+    <Input
+      @handle-change="handleChange"
+      :formData="formData"
+      :label="'Postal code*'"
+      type="text"
+      name="zip"
+      required
+    />
+    <Input
+      @handle-change="handleChange"
+      :formData="formData"
+      label="City*"
+      name="city"
+      type="text"
+    />
+    <div>
+      <FileInput @handle-change="handleChange" :formData="formData" />
+    </div>
+    <Input
+      @handle-change="handleChange"
+      :formData="formData"
+      label="Price*"
+      name="price"
+      type="number"
+    />
+    <div class="input-container">
       <Input
         @handle-change="handleChange"
         :formData="formData"
-        :label="'Postal code*'"
-        type="text"
-        name="zip"
-        required
-      />
-      <Input
-        @handle-change="handleChange"
-        :formData="formData"
-        label="City*"
-        name="city"
-        type="text"
-      />
-      <div>
-        <FileInput @handle-change="handleChange" :formData="formData" />
-      </div>
-      <Input
-        @handle-change="handleChange"
-        :formData="formData"
-        label="Price*"
-        name="price"
+        label="Sizes*"
+        name="size"
         type="number"
       />
       <div>
-        <Input
-          @handle-change="handleChange"
-          :formData="formData"
-          label="Sizes*"
-          name="size"
-          type="number"
-        />
-        <div>
-          <label class="input-field-title block" for="hasGarage">Garage*</label>
-          <select
-            selected="yes"
-            class="h-12 w-full rounded-md bg-white p-4"
-            :class="
-              errors.has('hasGarage')
-                ? 'text-red outline outline-[2px] outline-red'
-                : ''
-            "
-            :value="formData.get('hasGarage')?.value"
-            name="hasGarage"
-            id="hasGarage"
-          >
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-          <p class="error-message my-2 text-red" v-if="errors.has('hasGarage')">
-            {{ "Required field" }}
-          </p>
-        </div>
-      </div>
-      <div>
-        <Input
-          @handle-change="handleChange"
-          :formData="formData"
-          label="Bedrooms*"
-          name="bedrooms"
-          type="number"
-        />
-        <Input
-          @handle-change="handleChange"
-          :formData="formData"
-          label="Bathrooms*"
-          name="bathrooms"
-          type="number"
-        />
-      </div>
-      <Input
-        @handle-change="handleChange"
-        :formData="formData"
-        label="Construction date*"
-        name="constructionYear"
-        type="date"
-      />
-      <div>
-        <label class="input-field-title my-2 block" for="description"
-          >Description</label
+        <label class="input-field-title" for="hasGarage">Garage*</label>
+        <select
+          selected="yes"
+          :class="formData.get('hasGarage')?.errorMessage ? 'incorrect' : ''"
+          :value="formData.get('hasGarage')?.value"
+          name="hasGarage"
+          id="hasGarage"
         >
-        <textarea
-          class="w-full rounded-md p-4"
-          :class="
-            errors.has('description')
-              ? 'text-red outline outline-[2px] outline-red'
-              : ''
-          "
-          :value="formData.get('description')?.value"
-          @input="(e) => handleChange(e.target.value, 'description')"
-          cols="30"
-          rows="10"
-          name="description"
-          id="description"
-        />
-        <p class="error-message my-2 text-red" v-if="errors.has('description')">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+        <p
+          :class="formData.get('hasGarage')?.errorMessage ? 'incorrect' : ''"
+          class="error-message my-2 text-red"
+          v-if="formData.get('hasGarage')?.errorMessage"
+        >
           {{ "Required field" }}
         </p>
       </div>
-      <button
-        :disabled="!isFormReady"
-        :class="!isFormReady ? 'opacity-25' : ''"
-        class="buttons-and-tabs my-4 rounded-md bg-red px-2 py-4 text-white"
+    </div>
+    <div class="input-container">
+      <Input
+        @handle-change="handleChange"
+        :formData="formData"
+        label="Bedrooms*"
+        name="bedrooms"
+        type="number"
+      />
+      <Input
+        @handle-change="handleChange"
+        :formData="formData"
+        label="Bathrooms*"
+        name="bathrooms"
+        type="number"
+      />
+    </div>
+    <Input
+      @handle-change="handleChange"
+      :formData="formData"
+      label="Construction date*"
+      name="constructionYear"
+      type="date"
+    />
+    <div>
+      <label class="input-field-title my-2 block" for="description"
+        >Description</label
       >
-        {{ buttonText }}
-      </button>
-    </form>
-  </div>
+      <textarea
+        :class="formData.get('description')?.errorMessage ? 'incorrect' : ''"
+        :value="formData.get('description')?.value"
+        @input="(e) => handleChange(e.target.value, 'description')"
+        cols="30"
+        rows="10"
+        name="description"
+        id="description"
+      />
+      <p
+        class="error-message incorrect"
+        v-if="formData.get('description')?.errorMessage"
+      >
+        {{ "Required field" }}
+      </p>
+    </div>
+    <button
+      :disabled="!isFormReady"
+      :style="{ opacity: !isFormReady ? '0.25' : '' }"
+      class="buttons-and-tabs"
+    >
+      {{ buttonText }}
+    </button>
+  </form>
 </template>
+
+<style scoped>
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  margin-block: 1rem;
+  display: block;
+  border-radius: var(--rounded-md);
+  background-color: var(--red);
+  padding-block: 1rem;
+  padding-inline: 0.5rem;
+  color: white;
+}
+
+select {
+  height: 3rem;
+  flex-grow: 1;
+  border-radius: var(--rounded-md);
+  display: block;
+  width: 100%;
+  background-color: white;
+  padding: 1rem;
+}
+
+label {
+  display: block;
+  margin-block: 0.5rem;
+}
+
+textarea {
+  width: 100%;
+  border-radius: var(--rounded-md);
+  padding: 1rem;
+}
+
+.incorrect {
+  color: var(--red);
+}
+
+.incorrect:is(:not(p)) {
+  outline: var(--red) solid 2px;
+}
+
+.input-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-container > * {
+  align-items: center;
+  flex-grow: 1;
+}
+
+@container (min-width: 640px) {
+  form {
+    width: min(100vw, 400px);
+  }
+}
+</style>

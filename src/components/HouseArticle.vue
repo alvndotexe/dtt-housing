@@ -30,35 +30,71 @@ function handleDelete(e: Event) {
 </script>
 
 <template>
-  <article class="bg-white rounded-md flex">
+  <article>
     <RouterLink
       :to="`/House/${id}`"
       :style="{ 'background-image': 'url(' + image + ')' }"
-      class="basis-28 shrink-0 aspect-square bg-cover grow-0 rounded-md m-4"
+      class="house-img"
     >
       &nbsp;
     </RouterLink>
-    <RouterLink
-      :to="`/House/${id}`"
-      class="shrink flex flex-col justify-around py-4 grow text-grey-500"
-    >
-      <p class="desktop-header text-black">{{ location.street }}</p>
+    <RouterLink :to="`/House/${id}`" class="house-data">
+      <p class="desktop-header">{{ location.street }}</p>
       <p class="body truncate">{{ numberformater.format(price) }}</p>
       <p class="body truncate">{{ location.zip + " " + location.city }}</p>
-      <div class="flex gap-4">
+      <div style="display: flex; gap: 1rem">
         <Icon :icon="bed" :value="rooms.bedrooms" />
         <Icon :icon="bath" :value="rooms.bedrooms" />
         <Icon :icon="m2" :value="size" />
       </div>
     </RouterLink>
-    <div v-if="madeByMe" class="p-4 flex items-start gap-2 shrink-0">
+    <div v-if="madeByMe" class="manage-house">
       <RouterLink :to="`/Edit/${id}`">
-        <img class="h-4" :src="edit" alt="" />
+        <img :src="edit" alt="" />
       </RouterLink>
       <button @click="handleDelete">
-        <img class="h-4" :src="deleteIcon" alt="" />
+        <img :src="deleteIcon" alt="" />
       </button>
     </div>
   </article>
   <Dialogue :id="house.id" :show="show" />
 </template>
+
+<style scoped>
+article {
+  background-color: white;
+  border-radius: var(--rounded-md);
+  display: flex;
+  color: black;
+  width: 100%;
+}
+
+.house-img {
+  margin: 1rem;
+  aspect-ratio: 1/1;
+  flex-shrink: 0;
+  flex: 0 0 7rem;
+  border-radius: var(--rounded-md);
+  background-size: cover;
+}
+
+.house-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1 1;
+  padding-block: 1rem;
+  background-color: var(--grey-400);
+}
+
+.manage-house {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+.manage-house > * > img {
+  height: 1rem;
+}
+</style>

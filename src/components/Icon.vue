@@ -3,8 +3,25 @@ const { icon, value } = defineProps<{ icon: string; value: string | number }>();
 </script>
 
 <template>
-  <div class="flex gap-2 items-center">
-    <img class="w-5 h-5" :src="icon" alt="" />
-    <p class="list text-grey-500">{{ value }}</p>
+  <div>
+    <img :src="icon" alt="" />
+    <p class="list">{{ value }}</p>
   </div>
 </template>
+
+<style scoped>
+div {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+img {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+p {
+  color: var(--grey-500);
+}
+</style>
