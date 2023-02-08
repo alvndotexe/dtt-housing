@@ -65,7 +65,7 @@ img {
   width: 14rem;
 }
 
-@container (min-width: 640px) {
+@media (min-width: 640px) {
   h1 {
     display: none;
   }

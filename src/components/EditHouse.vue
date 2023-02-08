@@ -428,7 +428,7 @@ textarea {
   flex-grow: 1;
 }
 
-@container (min-width: 640px) {
+@media (min-width: 640px) {
   form {
     width: min(100vw, 400px);
   }

@@ -4,7 +4,7 @@ import homeSelected from "@/assets/ic_mobile_navigarion_home_active@3x.png";
 import About from "@/assets/ic_mobile_navigarion_info@3x.png";
 import AboutSelected from "@/assets/ic_mobile_navigarion_info_active@3x.png";
 import logo from "@/assets/img_logo_dtt@3x.png";
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
 import { useStore } from "./store";
 
@@ -35,10 +35,16 @@ const isOnAboutPage = computed(() =>
       <RouterLink class="logo" :to="`/`">
         <img :src="logo" alt="" />
       </RouterLink>
-      <RouterLink class="home-text header-1 font-monster" to="/"
+      <RouterLink
+        :style="{ color: isOnAboutPage ? 'var(--gray-400)' : 'black' }"
+        class="home-text header-1 font-monster"
+        to="/"
         >Houses</RouterLink
       >
-      <RouterLink class="about-text header-1 font-monster" to="/About"
+      <RouterLink
+        :style="{ color: isOnAboutPage ? 'black' : 'var(--gray-400)' }"
+        class="about-text header-1 font-monster"
+        to="/About"
         >About</RouterLink
       >
     </nav>
@@ -65,7 +71,7 @@ const isOnAboutPage = computed(() =>
   width: 10rem;
 }
 
-@container (min-width: 640px) {
+@media (min-width: 640px) {
   .logo,
   .about-text,
   .home-text {
@@ -81,10 +87,6 @@ const isOnAboutPage = computed(() =>
     gap: 2rem;
     justify-content: start;
     padding-inline: min(10vw, 10rem);
-  }
-
-  .nav-container {
-    order: 1;
   }
 }
 </style>

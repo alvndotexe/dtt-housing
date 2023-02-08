@@ -194,9 +194,17 @@ li {
   width: 100vw;
 }
 
+.section {
+  padding: 0rem;
+}
+
 @media (min-width: 640px) {
   .back {
     display: flex;
+  }
+
+  .section {
+    padding-inline: min(10vw, 10rem);
   }
 
   .mobile-navigation {
@@ -205,6 +213,7 @@ li {
 
   .house-article {
     border-radius: 0px;
+    max-width: min(1000px, 90vw);
   }
 
   .house-article-made-by-me {
@@ -213,6 +222,7 @@ li {
 
   .house-article-text {
     transform: translate(0);
+    border-radius: 0;
   }
 }
 

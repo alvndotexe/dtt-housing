@@ -51,7 +51,7 @@ h1 {
   display: none;
 }
 
-@container (min-width: calc(640px - 0.75rem)) {
+@media (min-width: 640px) {
   div {
     padding-inline: 0rem;
   }

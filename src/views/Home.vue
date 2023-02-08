@@ -31,10 +31,6 @@ const handleOrderBy = () => {
   if (orderBy.value === "asc") orderBy.value = "dsc";
   else orderBy.value = "asc";
 };
-
-const toLowerCaseInput = (e: Event) => {
-  input.value = e.target.value.toLowerCase();
-};
 </script>
 
 <template>
@@ -51,12 +47,13 @@ const toLowerCaseInput = (e: Event) => {
       <div class="search-bar-container">
         <img :src="searchIcon" alt="" />
         <input
-          @keyup="toLowerCaseInput"
+          class="input"
           type="text"
+          v-model="input.value"
           placeholder="Search for a house"
         />
         <button @click="() => (input.value = '')" v-if="input.value.length > 0">
-          <img :src="clearIcon" class="h-5 w-5" alt="" />
+          <img :src="clearIcon" class="small-icon" alt="" />
         </button>
       </div>
       <ul class="search-category-list">
@@ -67,18 +64,25 @@ const toLowerCaseInput = (e: Event) => {
           }"
           v-for="[sortMethod, _] in sortMethods"
         >
-          <button class="" @click="() => (sortBy.value = sortMethod)">
+          <button
+            class="buttons-and-tabs"
+            @click="() => (sortBy.value = sortMethod)"
+          >
             {{ sortMethod }}
           </button>
         </li>
-        <button @click="handleOrderBy">
+        <button class="buttons-and-tabs" @click="handleOrderBy">
           {{ orderBy.value }}
         </button>
       </ul>
     </div>
     <Suspense>
       <template #default>
-        <Houses :key="sortMethod" :input="input" :sortMethod="sortMethod" />
+        <Houses
+          :key="sortMethod"
+          :input="{ value: input.value.toLowerCase() }"
+          :sortMethod="sortMethod"
+        />
       </template>
       <template #fallback>
         <h1>loading...</h1>
@@ -88,11 +92,33 @@ const toLowerCaseInput = (e: Event) => {
 </template>
 
 <style scoped>
+ul {
+  border-radius: var(--rounded-md);
+}
+
+li:first-child {
+  border-top-left-radius: var(--rounded-md);
+  border-bottom-left-radius: var(--rounded-md);
+}
+
+li:last-child {
+  border-radius: var(--rounded-md);
+}
+
 .header {
   margin-block: 1.25rem;
   display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  grid-template-rows: repeat(1, minmax(0, 1fr));
+  isolation: isolate;
+}
+
+.header > * {
+  grid-column: 1/-1;
+  grid-row: 1/-1;
+}
+
+.header > .create-new-button {
+  z-index: 10;
+  place-self: end end;
 }
 
 .icon {
@@ -100,10 +126,6 @@ const toLowerCaseInput = (e: Event) => {
   z-index: 10;
   height: 1rem;
   width: 1rem;
-}
-
-.header-text {
-  grid-row: auto/-1;
 }
 
 .icon.gray {
@@ -173,6 +195,8 @@ const toLowerCaseInput = (e: Event) => {
 .search-category-list > button {
   background-color: var(--gray-500);
   padding: 0.5rem;
+  border-top-right-radius: var(--rounded-md);
+  border-bottom-right-radius: var(--rounded-md);
 }
 
 /* class="buttons-and-tabs flex items-center gap-4 place-self-end rounded-md p-2 px-6 sm:bg-red sm:text-white" */
@@ -182,7 +206,7 @@ const toLowerCaseInput = (e: Event) => {
   color: white;
 }
 
-@container (min-width: calc(640px - 0.75rem)) {
+@media (min-width: 640px) {
   .header {
     display: flex;
     justify-content: space-between;
